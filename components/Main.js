@@ -1,39 +1,131 @@
 import React, { useState} from 'react';
 import "tailwindcss/tailwind.css"
-export default function CookieStandForm() {
+import {workingHours} from '../data' 
 
-const [store, setStore] = useState('')
 
-    function createHandler(event){
-      event.preventDefault();
-      let store = {
-        location: event.target.location.value,
-        min: event.target.min.value,
-        max: event.target.max.value,
-        ave: event.target.ave.value,
-      }
-      setStore(store)
-    }
-  
+export default function CookieStandForm(props) {
+
+        const [location,setLocation] = useState("");
+        const [min,setMin] = useState("");
+        const [max,setMax] = useState("");
+        const [avg,setAvg] = useState("");
+        const [report,setReport] = useState("");
+        const [sum,setSum] = useState("")
+
+        function locHandler(event){
+            setLocation(event.target.value);
+        }
+        function minHandler(event){
+            setMin(event.target.value);
+        }
+        function maxHandler(event){
+            setMax(event.target.value);
+        }
+        function avgHandler(event){
+            setAvg(event.target.value);
+        }
+
+        function onCreate(event){
+            event.preventDefault();
+            const result = []
+            const data = {
+                id:report.length + 1,
+                location:location,
+                cookies:[]
+            }
+
+            for (let i = 0; i < 14; i++){
+                let sum = Math.floor(Math.random() * ((parseInt(max) - parseInt(min) + 1) ) + parseInt(min))
+                data.cookies.push(sum)
+                for(let j = 0; j < report.length+1; j++){
+                    sum += report[j] ? report[j].cookies[i] : 0
+                }
+                result.push(sum)
+            }
+
+            setReport(
+                [...report,data]
+            )
+            setSum(
+                result
+            )
+            props.setBranches(
+                report.length + 1
+            )
+        }
+
     return (
-     <main className="grid w-full p-10 px-0 text-center bg-green-100 justify-items-stretch">
-          <form onSubmit={createHandler} className="px-10 py-5 mx-12 bg-green-300 rounded w-4/5justify-self-center">
-            <h2 className="p-5 text-2xl">Create Cookie Stand</h2>
-            <label className="w-5/6">Location:<input className="w-5/6 m-3 " name="location"/></label>
-            <section className="py-5">
-              <label className="inline-block m-3">Minimum Customuers per Hour<br/><input className="w-60" name="min"/></label>
-              <label className="inline-block m-3">Maximum Customuers per Hour<br/><input className="w-60" name="max"/></label>
-              <label className="inline-block m-3">Average Cookies per Sale<br/><input className="w-60" name="ave"/></label>
-              <button className="p-8 py-5 m-3 bg-green-400" type="submit">Create</button>
-            </section>
-          </form>
-    
-         <section className="text=center p-10">
-         <p className='m-5 text-gray-600'>Report Table coming soon .....</p>
-          <p className="m-3">{JSON.stringify(store)}</p>
-          </section>
-        </main>
+        <main className="grid w-full p-10 px-0 text-center bg-green-100 justify-items-stretch">
+        <form className="px-10 py-5 mx-12 bg-green-300 rounded w-4/5justify-self-center" onSubmit={onCreate}>
+            <fieldset>
 
+                <div className="flex flex-col ...">
+                    <div className="p-5 text-2xl">
+                             <h2 >Create Cookie Stand</h2>
+                    </div>
+
+                    <div>
+                        <div className="container mx-auto w-11/12 my-1.5" >
+                            <label className="mr-8 ..." >location</label>
+                            <input onChange={locHandler} className="w-4/5" type="text" name="location" />
+                        </div>
+                    </div>
+                    <div className="container mx-auto w-11/12 my-1.5" >
+                        <div className="flex space-x-6 ...">
+                            <div className="flex flex-col ... w-1/4 text-xs text-center bg-green-100 p-2 rounded-lg">
+                                <label >Minimum Customers per Hour</label>
+                                <input onChange={minHandler} type="number" name="min" />
+                            </div>
+                            <div className="flex flex-col ... w-1/4 text-xs text-center bg-green-100 p-2 rounded-lg">
+                                <label >Maximum Customers per Hour</label>
+                                <input onChange={maxHandler} type="number" name="max" />
+                            </div>
+                            <div className="flex flex-col ... w-1/4 text-xs text-center bg-green-100 p-2 rounded-lg">
+                                <label >Average Cookies per Sale</label>
+                                <input onChange={avgHandler} type="number" step="0.01" name="avg" />
+                            </div>
+                            <button className="w-1/4 bg-green-500 rounded-lg">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+
+       <div className="flex flex-col ... text-center ... mb-8 ... container mx-auto w-4/5">
+                {(report.length == 0) ? 
+                <h2>No Cookie Stands Available</h2> :
+                <table className="border border-collapse border-gray-900 rounded-lg">
+                    <thead className="bg-green-500">
+                        <tr key="0">
+                            <th>
+                                Location
+                            </th>
+                            {workingHours.map(hour => (<th>{hour}</th>))}
+                            <th>
+                                Totals
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="border border-collapse border-gray-900">
+                        {report.map(data => (
+                            <tr className="border border-collapse border-gray-900" key={data.id}>
+                                <td className="border border-collapse border-gray-900">{data.location}</td>
+                                {data.cookies.map(cookie => (<td className="border border-collapse border-gray-900">{cookie}</td>))}
+                                <td className="border border-collapse border-gray-900">{data.cookies.reduce((acc, curr) => {acc = acc+curr; return acc},0)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot className="bg-green-500 border border-collapse border-gray-900">
+                        <tr className="border border-collapse border-gray-900" key={report.length + 1}>
+                            <th className="border border-collapse border-gray-900">Totals</th>
+                            {sum.map(sum => (<th className="border border-collapse border-gray-900">{sum}</th>))}
+                            <th className="border border-collapse border-gray-900">{sum.reduce((acc, curr) => {acc = acc+curr; return acc},0)}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+                   }  
+            </div>
+        </main>
     )
-   
 }
+
